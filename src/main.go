@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"repository"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -33,30 +34,10 @@ func main() {
 	fmt.Println("Connet Success")
 
 	//fmt.Println(add(db))
-	fmt.Println(readAll(db))
+	fmt.Println(repository.ReadAll(db))
 	//fmt.Println(delete(db, 6))
 	fmt.Println(edit(db, 4, "มาร์ค"))
 	fmt.Println(readById(db, 4))
-}
-
-func readAll(db *sql.DB) []UsersData {
-	result, _ := db.Query("SELECT * FROM users")
-	var usersDataList []UsersData
-
-	for result.Next() {
-		var userData UsersData //เนื่องจากไม่ได้ประกาศเป็นอาร์เรย์ เลยให้วนใน for
-
-		err := result.Scan(&userData.ID, &userData.CitizenID, &userData.Firstname, &userData.Lastname,
-			&userData.BirthYear, &userData.FirstnameFather, &userData.LastnamrFather,
-			&userData.FirstnameMother, &userData.LastnameMother, &userData.SoldierID, &userData.AddressID)
-
-		if err != nil {
-			panic(err)
-		}
-
-		usersDataList = append(usersDataList, userData)
-	}
-	return usersDataList
 }
 
 func add(db *sql.DB) bool {
