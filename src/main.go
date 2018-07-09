@@ -35,8 +35,8 @@ func main() {
 	//fmt.Println(add(db))
 	fmt.Println(readAll(db))
 	//fmt.Println(delete(db, 6))
-	fmt.Println(edit(db, 2, "ไกรสร"))
-	fmt.Println(readAll(db))
+	fmt.Println(edit(db, 4, "มาร์ค"))
+	fmt.Println(readById(db, 4))
 }
 
 func readAll(db *sql.DB) []UsersData {
@@ -60,8 +60,9 @@ func readAll(db *sql.DB) []UsersData {
 }
 
 func add(db *sql.DB) bool {
-	result, _ := db.Prepare("INSERT INTO testsck.users (citizen_id,firstname,lastname,birthyear,firstname_father,lastname_father,firstname_mother,lastname_mother,soldier_id,address_id) VALUES (?,?,?,?,?,?,?,?,?,?)")
-	_, err := result.Exec("1220400128904", "กันต์", "อมรพลัง", 1997, "เมษา", "อมรพลัง", "สายทอง", "อมรพลัง", 678, 1)
+	statement, _ := db.Prepare("INSERT INTO testsck.users (citizen_id,firstname,lastname,birthyear,firstname_father,lastname_father,firstname_mother,lastname_mother,soldier_id,address_id) VALUES (?,?,?,?,?,?,?,?,?,?)")
+	defer statement.Close()
+	_, err := statement.Exec("1220400128904", "กันต์", "อมรพลัง", 1997, "เมษา", "อมรพลัง", "สายทอง", "อมรพลัง", 678, 1)
 
 	if err != nil {
 		panic(err.Error)
@@ -72,8 +73,9 @@ func add(db *sql.DB) bool {
 }
 
 func delete(db *sql.DB, id int) bool {
-	result, _ := db.Prepare("DELETE FROM testsck.users WHERE user_id = ? ")
-	_, err := result.Exec(id)
+	statement, _ := db.Prepare("DELETE FROM testsck.users WHERE user_id = ? ")
+	defer statement.Close()
+	_, err := statement.Exec(id)
 
 	if err != nil {
 		panic(err.Error())
@@ -84,12 +86,32 @@ func delete(db *sql.DB, id int) bool {
 }
 
 func edit(db *sql.DB, id int, firstnameFather string) bool {
-	result, _ := db.Prepare("UPDATE testsck.users SET firstname_father = ? WHERE user_id = ?")
-	_, err := result.Exec(firstnameFather, id)
+	statement, _ := db.Prepare("UPDATE testsck.users SET firstname_father = ? WHERE user_id = ?")
+	defer statement.Close()
+	_, err := statement.Exec(firstnameFather, id)
 
 	if err != nil {
 		panic(err.Error())
 		return false
 	}
 	return true
+}
+
+func readById(db *sql.DB, id int) UsersData {
+	statement, _ := db.Prepare("SELECT * FROM users WHERE user_id = ?")
+	defer statement.Close()
+	result, err := statement.Query(id)
+
+	var userData UsersData //เนื่องจากไม่ได้ประกาศเป็นอาร์เรย์ เลยให้วนใน for
+	for result.Next() {
+		err = result.Scan(&userData.ID, &userData.CitizenID, &userData.Firstname, &userData.Lastname,
+			&userData.BirthYear, &userData.FirstnameFather, &userData.LastnamrFather,
+			&userData.FirstnameMother, &userData.LastnameMother, &userData.SoldierID, &userData.AddressID)
+
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	return userData
 }
