@@ -23,7 +23,7 @@ type UsersData struct {
 
 func main() {
 	db, err := sql.Open("mysql", "root:@tcp(127.0.0.1:3306)/testsck")
-
+	defer db.Close()
 	if err != nil {
 		fmt.Println("Connect fail")
 		fmt.Printf("Error : %s", err)
@@ -31,10 +31,13 @@ func main() {
 	}
 
 	fmt.Println("Connet Success")
+	fmt.Println(readAll(db))
+	fmt.Println(add(db))
+}
 
-	defer db.Close()
-
+func readAll(db *sql.DB) []UsersData {
 	result, _ := db.Query("SELECT * FROM users")
+	var usersDataList []UsersData
 
 	for result.Next() {
 		var userData UsersData //เนื่องจากไม่ได้ประกาศเป็นอาร์เรย์ เลยให้วนใน for
@@ -47,6 +50,19 @@ func main() {
 			panic(err)
 		}
 
-		fmt.Println(userData)
+		usersDataList = append(usersDataList, userData)
 	}
+	return usersDataList
+}
+
+func add(db *sql.DB) bool {
+	result, _ := db.Prepare("INSERT INTO testsck.users (citizen_id,firstname,lastname,birthyear,firstname_father,lastname_father,firstname_mother,lastname_mother,soldier_id,address_id) VALUES (?,?,?,?,?,?,?,?,?,?)")
+	_, err := result.Exec("1220400128904", "กันต์", "อมรพลัง", 1997, "เมษา", "อมรพลัง", "สายทอง", "อมรพลัง", 678, 1)
+
+	if err != nil {
+		panic(err.Error)
+		return false
+	}
+
+	return true
 }
