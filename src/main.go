@@ -34,7 +34,8 @@ func main() {
 
 	//fmt.Println(add(db))
 	fmt.Println(readAll(db))
-	fmt.Println(delete(db, 6))
+	//fmt.Println(delete(db, 6))
+	fmt.Println(edit(db, 2, "ไกรสร"))
 	fmt.Println(readAll(db))
 }
 
@@ -80,4 +81,15 @@ func delete(db *sql.DB, id int) bool {
 	}
 	return true
 
+}
+
+func edit(db *sql.DB, id int, firstnameFather string) bool {
+	result, _ := db.Prepare("UPDATE testsck.users SET firstname_father = ? WHERE user_id = ?")
+	_, err := result.Exec(firstnameFather, id)
+
+	if err != nil {
+		panic(err.Error())
+		return false
+	}
+	return true
 }
