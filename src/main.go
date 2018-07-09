@@ -31,8 +31,11 @@ func main() {
 	}
 
 	fmt.Println("Connet Success")
+
+	//fmt.Println(add(db))
 	fmt.Println(readAll(db))
-	fmt.Println(add(db))
+	fmt.Println(delete(db, 6))
+	fmt.Println(readAll(db))
 }
 
 func readAll(db *sql.DB) []UsersData {
@@ -65,4 +68,16 @@ func add(db *sql.DB) bool {
 	}
 
 	return true
+}
+
+func delete(db *sql.DB, id int) bool {
+	result, _ := db.Prepare("DELETE FROM testsck.users WHERE user_id = ? ")
+	_, err := result.Exec(id)
+
+	if err != nil {
+		panic(err.Error())
+		return false
+	}
+	return true
+
 }
