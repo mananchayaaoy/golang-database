@@ -2,3 +2,5 @@
 ```
 go get -u github.com/go-sql-driver/mysql
 ```
+
+พี่ออยสู้ๆ
